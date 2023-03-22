@@ -1,0 +1,52 @@
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var pianoKeys = document.getElementsByClassName('pianoKey');
+
+    function playNote (note) {
+        socket.emit('play_note', {'note': note});
+
+        for (var i = 0; i < pianoKeys.length; i++) {
+            if (pianoKeys[i].getAttribute('data-note') === note) {
+                pianoKeys[i].classList.add('active');
+                var sound = new Audio();
+                sound.src = '';
+                sound.src = pianoKeys[i].getAttribute('data-sound');
+                sound.play();
+            }
+        }
+    }
+
+    socket.on('note_played', function(data) {
+        playNoteFromServer(data.note);
+    });
+
+    function playNoteFromServer (note) {
+        for (var i = 0; i < pianoKeys.length; i++) {
+            if (pianoKeys[i].getAttribute('data-note') === note) {
+                pianoKeys[i].classList.add('active');
+                var sound = new Audio();
+                sound.src = '';
+                sound.src = pianoKeys[i].getAttribute('data-sound');
+                sound.play();
+                // Play sound using pygame instead of HTML5 Audio
+                fetch(sound.src).then(response => response.blob()).then(blob => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const arrayBuffer = reader.result;
+                        const byteArray = new Uint8Array(arrayBuffer);
+                        pygame.mixer.stop();
+                        pygame.mixer.music.load(byteArray.buffer);
+                        pygame.mixer.music.play();
+                    };
+                    reader.readAsArrayBuffer(blob);
+                });
+            }
+        }
+    }
+
+    window.addEventListener('keydown', function(e) {
+        var note = e.key.toUpperCase();
+        if (note === 'C4' || note === 'D4' || note === 'E4' || note === 'F4' || note === 'G4' || note === 'A4' || note === 'B4') {
+            playNoteFromServer(note);
+            socket.emit('play_note', {'note': note});
+        }
+    });

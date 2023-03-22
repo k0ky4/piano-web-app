@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% block title %}Classes{% endblock %}
+{% block content %}
+<head>
+  <style>
+    .container {
+  max-width: 600px;
+  margin: auto;
+}
+
+.list-group {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.list-group-item {
+  border-color: #ccc;
+}
+
+.list-group-item.active {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+  border-color: #0062cc;
+}
+
+.btn-primary:focus, .btn-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
+}
+
+.btn-primary.disabled, .btn-primary:disabled {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+    .piano {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      width: 100%;
+      height: 350px;
+    }
+
+    .white-key {
+      text-align: center;
+      display: flex;
+      justify-content: end;
+      flex-direction: column;
+      flex: 0 0 auto;
+      width: 50px;
+      height: 200px;
+      border: 1px solid black;
+      background-color: white;
+      position: relative;
+      margin-top: 100px;
+      margin-right: 1px;
+      border-radius: 5px;
+    }
+
+    .black-key {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 120px;
+      border: 1px solid black;
+      background-color: black;
+      position: relative;
+      margin-left: -15px;
+      margin-right: -15px;
+      margin-top: 100px;
+      z-index: 2;
+      border-radius: 5px;
+    }
+
+    .played-white-key {
+      flex: 0 0 auto;
+      width: 50px;
+      height: 200px;
+      border: 2px solid black;
+      background-color: rgba(255, 0, 0, 0.66);
+      position: absolute;
+      z-index: 1;
+      border-radius: 5px;
+      color: black;
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .played-black-key {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 120px;
+      border: 2px solid black;
+      background-color: rgba(255, 0, 0, 0.66);
+      position: absolute;
+      z-index: 3;
+      border-radius: 5px;
+      color: white;
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      align-items: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="piano">
+    <div class="white-key" id="A0" data-note="A0"></div>
+    <div class="black-key" id="A#0" data-note="A#0"></div>
+    <div class="white-key" id="B0" data-note="B0"></div>
+
+    <div class="white-key" id="C1" data-note="C1">C1</div>
+    <div class="black-key" id="C#1" data-note="C#1"></div>
+    <div class="white-key" id="D1" data-note="D1"></div>
+    <div class="black-key" id="D#1" data-note="D#1"></div>
+    <div class="white-key" id="E1" data-note="E1"></div>
+    <div class="white-key" id="F1" data-note="F1"></div>
+    <div class="black-key" id="F#1" data-note="F#1"></div>
+    <div class="white-key" id="G1" data-note="G1"></div>
+    <div class="black-key" id="G#1" data-note="G#1"></div>
+    <div class="white-key" id="A1" data-note="A1"></div>
+    <div class="black-key" id="A#1" data-note="A#1"></div>
+    <div class="white-key" id="B1" data-note="B1"></div>
+  
+    <div class="white-key" id="C2" data-note="C2">C2</div>
+    <div class="black-key" id="C#2" data-note="C#2"></div>
+    <div class="white-key" id="D2" data-note="D2"></div>
+    <div class="black-key" id="D#2" data-note="D#2"></div>
+    <div class="white-key" id="E2" data-note="E2"></div>
+    <div class="white-key" id="F2" data-note="F2"></div>
+    <div class="black-key" id="F#2" data-note="F#2"></div>
+    <div class="white-key" id="G2" data-note="G2"></div>
+    <div class="black-key" id="G#2" data-note="G#2"></div>
+    <div class="white-key" id="A2" data-note="A2"></div>
+    <div class="black-key" id="A#2" data-note="A#2"></div>
+    <div class="white-key" id="B2" data-note="B2"></div>
+  
+    <div class="white-key" id="C3" data-note="C3">C3</div>
+    <div class="black-key" id="C#3" data-note="C#3"></div>
+    <div class="white-key" id="D3" data-note="D3"></div>
+    <div class="black-key" id="D#3" data-note="D#3"></div>
+    <div class="white-key" id="E3" data-note="E3"></div>
+    <div class="white-key" id="F3" data-note="F3"></div>
+    <div class="black-key" id="F#3" data-note="F#3"></div>
+    <div class="white-key" id="G3" data-note="G3"></div>
+    <div class="black-key" id="G#3" data-note="G#3"></div>
+    <div class="white-key" id="A3" data-note="A3"></div>
+    <div class="black-key" id="A#3" data-note="A#3"></div>
+    <div class="white-key" id="B3" data-note="B3"></div>
+  
+    <div class="white-key" id="C4" data-note="C4">C4</div>
+    <div class="black-key" id="C#4" data-note="C#4"></div>
+    <div class="white-key" id="D4" data-note="D4"></div>
+    <div class="black-key" id="D#4" data-note="D#4"></div>
+    <div class="white-key" id="E4" data-note="E4"></div>
+    <div class="white-key" id="F4" data-note="F4"></div>
+    <div class="black-key" id="F#4" data-note="F#4"></div>
+    <div class="white-key" id="G4" data-note="G4"></div>
+    <div class="black-key" id="G#4" data-note="G#4"></div>
+    <div class="white-key" id="A4" data-note="A4"></div>
+    <div class="black-key" id="A#4" data-note="A#4"></div>
+    <div class="white-key" id="B4" data-note="B4"></div>
+  
+    <div class="white-key" id="C5" data-note="C5">C5</div>
+    <div class="black-key" id="C#5" data-note="C#5"></div>
+    <div class="white-key" id="D5" data-note="D5"></div>
+    <div class="black-key" id="D#5" data-note="D#5"></div>
+    <div class="white-key" id="E5" data-note="E5"></div>
+    <div class="white-key" id="F5" data-note="F5"></div>
+    <div class="black-key" id="F#5" data-note="F#5"></div>
+    <div class="white-key" id="G5" data-note="G5"></div>
+    <div class="black-key" id="G#5" data-note="G#5"></div>
+    <div class="white-key" id="A5" data-note="A5"></div>
+    <div class="black-key" id="A#5" data-note="A#5"></div>
+    <div class="white-key" id="B5" data-note="B5"></div>
+  
+    <div class="white-key" id="C6" data-note="C6">C6</div>
+    <div class="black-key" id="C#6" data-note="C#6"></div>
+    <div class="white-key" id="D6" data-note="D6"></div>
+    <div class="black-key" id="D#6" data-note="D#6"></div>
+    <div class="white-key" id="E6" data-note="E6"></div>
+    <div class="white-key" id="F6" data-note="F6"></div>
+    <div class="black-key" id="F#6" data-note="F#6"></div>
+    <div class="white-key" id="G6" data-note="G6"></div>
+    <div class="black-key" id="G#6" data-note="G#6"></div>
+    <div class="white-key" id="A6" data-note="A6"></div>
+    <div class="black-key" id="A#6" data-note="A#6"></div>
+    <div class="white-key" id="B6" data-note="B6"></div>
+  
+    <div class="white-key" id="C7" data-note="C7">C7</div>
+    <div class="black-key" id="C#7" data-note="C#7"></div>
+    <div class="white-key" id="D7" data-note="D7"></div>
+    <div class="black-key" id="D#7" data-note="D#7"></div>
+    <div class="white-key" id="E7" data-note="E7"></div>
+    <div class="white-key" id="F7" data-note="F7"></div>
+    <div class="black-key" id="F#7" data-note="F#7"></div>
+    <div class="white-key" id="G7" data-note="G7"></div>
+    <div class="black-key" id="G#7" data-note="G#7"></div>
+    <div class="white-key" id="A7" data-note="A7"></div>
+    <div class="black-key" id="A#7" data-note="A#7"></div>
+    <div class="white-key" id="B7" data-note="B7"></div>
+
+    <div class="white-key" id="C8" data-note="C8">C8</div>
+  </div>
+
+  <div class="container">
+    <form>
+      <div class="list-group">
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item1"> Item 1
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item2"> Item 2
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item3"> Item 3
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item4"> Item 4
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item5"> Item 5
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item6"> Item 6
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+          <input type="radio" name="item" value="item7"> Item 7
+        </a>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
+
+    <form>
+      <div>
+        <input type="range" id="bpm" name="bpm"
+           min="60" max="360">
+        <label for="bpm">BPM</label>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+  <script src="static/js/piano.js"></script>
+</body>
+{% endblock %}

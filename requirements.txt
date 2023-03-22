@@ -1,0 +1,5 @@
+greenlet==2.0.2
+flask
+flask_socketio
+flask_sqlalchemy
+eventlet
