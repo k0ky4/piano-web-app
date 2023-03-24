@@ -7,46 +7,64 @@ import fingers
 
 class Piano:
     def __init__(self):
+        self.NONE_KEY = 88
         self.piano_keys = [
-            PianoKey("A0", 0),
-            PianoKey("A#0", 1),
-            PianoKey("B0", 2)
+            PianoKey("A0", 0, self),
+            PianoKey("A#0", 1, self),
+            PianoKey("B0", 2, self)
             ]
         semitones = 3
         for octave in range(1, 8):
-            self.piano_keys.append(PianoKey(f"C{octave}", semitones))
-            self.piano_keys.append(PianoKey(f"C#{octave}", semitones + 1))
-            self.piano_keys.append(PianoKey(f"D{octave}", semitones + 2))
-            self.piano_keys.append(PianoKey(f"D#{octave}", semitones + 3))
-            self.piano_keys.append(PianoKey(f"E{octave}", semitones + 4))
-            self.piano_keys.append(PianoKey(f"F{octave}", semitones + 5))
-            self.piano_keys.append(PianoKey(f"F#{octave}", semitones + 6))
-            self.piano_keys.append(PianoKey(f"G{octave}", semitones + 7))
-            self.piano_keys.append(PianoKey(f"G#{octave}", semitones + 8))
-            self.piano_keys.append(PianoKey(f"A{octave}", semitones + 9))
-            self.piano_keys.append(PianoKey(f"A#{octave}", semitones + 10))
-            self.piano_keys.append(PianoKey(f"B{octave}", semitones + 11))
+            self.piano_keys.append(PianoKey(f"C{octave}", semitones, self))
+            self.piano_keys.append(PianoKey(f"C#{octave}", semitones + 1, self))
+            self.piano_keys.append(PianoKey(f"D{octave}", semitones + 2, self))
+            self.piano_keys.append(PianoKey(f"D#{octave}", semitones + 3, self))
+            self.piano_keys.append(PianoKey(f"E{octave}", semitones + 4, self))
+            self.piano_keys.append(PianoKey(f"F{octave}", semitones + 5, self))
+            self.piano_keys.append(PianoKey(f"F#{octave}", semitones + 6, self))
+            self.piano_keys.append(PianoKey(f"G{octave}", semitones + 7, self))
+            self.piano_keys.append(PianoKey(f"G#{octave}", semitones + 8, self))
+            self.piano_keys.append(PianoKey(f"A{octave}", semitones + 9, self))
+            self.piano_keys.append(PianoKey(f"A#{octave}", semitones + 10, self))
+            self.piano_keys.append(PianoKey(f"B{octave}", semitones + 11, self))
             semitones += 12
-        self.piano_keys.append(PianoKey("C8", semitones))
+        self.piano_keys.append(PianoKey("C8", semitones, self))
+
+        self.piano_keys.append(PianoKey("NONE_KEY", 88, self))
 
     def __getitem__(self, index):
         if isinstance(index, int):
+            if not 0 <= index <= self.NONE_KEY:
+                index = self.NONE_KEY
             return self.piano_keys[index]
         else:
             for key in self.piano_keys:
                 if key.name == index:
                     return key
-            # KeyError?
-            raise IndexError("There's no such key!")
-        
+            
+            return self.piano_keys[self.NONE_KEY]
+            # raise IndexError("There's no such key!")
+
+    # __iter__ ? for piano_key in piano is not used
+
 
 class PianoKey:
     def __str__(self):
         return f"key: {self.name}, semitones from A0: {self.semitones}"
     
-    def __init__(self, name: str, semitones: int):
+    def __init__(self, name: str, semitones: int, piano: Piano):
         self.name = name
         self.semitones = semitones
+        self.piano = piano
+    
+    def __add__(self, step: int):
+        return self.piano[self.semitones + step]
+    
+    def __radd__(self, step: int):
+        return self + step
+    
+    def __sub__(self, step: int):
+        return self + (-step)
 
 
 class Interval(Enum):
@@ -98,10 +116,9 @@ class Arpeggio:
         pass
 
 
-# TODO: move to json
 class Chord:
     def __init__(self, chord_name):
-        # inversions - list[list[str]]
+        # list[list[str]]
         self.inversions = get_chord_inversions(chord_name)
 
 
@@ -121,7 +138,7 @@ class BuildScale(Builder):
         scale = Scale(scale_name)
         # left/right - TODO ?
         f_left, f_right = fingers.get_scale_fingers(start_key.name, scale_name)
-        semitones = piano[start_key.name].semitones
+        current_key = start_key
 
         steps = [0]
         for _ in range(octaves):
@@ -131,22 +148,37 @@ class BuildScale(Builder):
             steps.extend(scale.steps_down)
 
         for step, right_finger in zip(steps, f_right):
-            semitones += step
-            result.append((piano[semitones].name, f"R{right_finger}"))
+            current_key += step
+            result.append((current_key.name, right_finger))
                 
         return result
 
 
 class BuildArpeggio(Builder):
     @staticmethod
-    def build(piano: Piano, start_key: PianoKey, arpeggio_name="minor", ):
+    def build(piano: Piano, start_key: PianoKey, arpeggio_name="minor"):
         pass
 
 
 class BuildChord(Builder):
     @staticmethod
-    def build(piano: Piano, start_key: PianoKey, chord_name="minor", ):
-        pass
+    def build(piano: Piano, start_key: PianoKey, chord_name="minor") -> list[list[tuple[str]]]:
+        
+        result = []
+        chord = Chord(chord_name)
+        # left/right - TODO ?
+        f_left, f_right = fingers.get_chord_fingers(start_key.name, chord_name)
+
+        for i, inversion_steps in enumerate(chord.inversions):
+            current_key = start_key
+            inversion = []
+            for step, right_finger in zip(inversion_steps, f_right[i]):
+                current_key += step
+                inversion.append((current_key.name, right_finger))
+
+            result.append(inversion)
+        
+        return result
 
 
 class BuildInterval(Builder):
@@ -154,9 +186,9 @@ class BuildInterval(Builder):
     def build(piano: Piano, start_key: PianoKey, interval_name="unison", direction=1) -> list[str]:
         assert direction == 1 or direction == -1
 
-        end_key_semitones = start_key.semitones + direction * Interval[interval_name.upper()].value
+        end_key = start_key + direction * Interval[interval_name.upper()].value
 
-        return [start_key.name, piano[end_key_semitones].name]
+        return [start_key.name, end_key.name]
 
 
 def get_scale_steps(scale_name: str) -> tuple[list[int], list[int]]:
@@ -192,13 +224,12 @@ def get_chord_inversions(chord_name: str) -> list[list[int]]:
         if chord_name not in chords_parsed.keys():
             raise ValueError("Unknown chord!")
     
-        pass
+        return chords_parsed[chord_name]
 
 
 if __name__ == "__main__":
     piano = Piano()
-    for key in piano:
-        print(key)
-    print(piano["A7"])
-    print(Scale("melodic_minor").steps_up, Scale("melodic_minor").steps_down)
-    # print(BuildScale.build(piano, piano["A4"], scale_name="natural_minor"))
+    print(BuildScale.build(piano, piano["C4"], scale_name="natural_minor"))
+    print(BuildChord.build(piano, piano["C4"], chord_name="min"))
+    key = piano["A4"]
+    print(key - 4, key, key + 4)

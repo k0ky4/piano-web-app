@@ -3,7 +3,7 @@ from flask_socketio import SocketIO, emit
 import os
 from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
-from piano import Piano, BuildScale
+from piano import Piano, BuildScale, BuildChord
 
 
 app = Flask(__name__)
@@ -24,7 +24,6 @@ class Users(db.Model):
     def __init__(self, name, email):
         self.name = name
         self.email = email
-
 
 
 """@socketio.on('keydown')
@@ -113,11 +112,19 @@ def classes():
     return render_template('classes.html', static_url_path='/static')
 
 
-@socketio.on('request-chord')
-def handle_chord_played(chord):
-    print(f"handle_chord_played {chord}")
-    chord = BuildScale.build(piano, piano["A7"], harmony="major", subharmony="natural")
-    emit('play chord', chord, broadcast=True)
+#@socketio.on('request-chord')
+#def handle_chord_played(chord):
+#    print(f"handle_chord_played {chord}")
+#    chord = BuildScale.build(piano, piano["C4"], chord_name="7+5")
+#    emit('play chord', chord, broadcast=True)
+
+
+@socketio.on('request-chord-sequence')
+def handle_chord_sequence_played(chord):
+    print(f"handle_chord_sequence_played {chord}")
+    chord_sequence = BuildChord.build(piano, piano["C3"], chord_name="add2")
+    print(chord_sequence)
+    emit('play chord sequence', {"sequence": chord_sequence, "speed": 45}, broadcast=True)
 
 
 @socketio.on('request-sequence')
